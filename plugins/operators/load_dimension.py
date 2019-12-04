@@ -11,6 +11,7 @@ class LoadDimensionOperator(BaseOperator):
                  target_table='',
                  redshift_conn_id='',
                  str_sql_select='',
+				 is_truncate=True,
                  *args, **kwargs):
 
 
@@ -24,8 +25,11 @@ class LoadDimensionOperator(BaseOperator):
     def execute(self, context):
         self.log.info(f"Start loading the dimension {self.target_table}")
         redshift = PostgresHook(postgres_conn_id=self.conn_id)
-        self.log.info(f"truncating the target table {self.target_table}")
-        redshift.run(f"TRUNCATE TABLE {self.target_table}")
+		
+		if is_truncate == True:
+			self.log.info(f"truncating the target table {self.target_table}")
+			redshift.run(f"TRUNCATE TABLE {self.target_table}")
+			
         str_sql_insert = f"INSERT INTO {self.target_table} {self.str_sql_select}"
         redshift.run(str_sql_insert)
         self.log.info(f"finished loading fact table {self.target_table}")
